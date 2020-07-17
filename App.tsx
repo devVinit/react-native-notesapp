@@ -8,14 +8,14 @@ import {
 } from '@expo-google-fonts/poppins';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
-import MenuIconSvg from './Components/Svg/MenuIconSvg';
-import SearchIconSvg from './Components/Svg/SearchIconSvg';
-import AddIconSvg from './Components/Svg/AddIconSvg';
-import BackIconSvg from './Components/Svg/BackIconSvg';
-import UndoIconSvg from './Components/Svg/UndoIconSvg';
-import RedoIconSvg from './Components/Svg/RedoIconSvg';
-import DoneIconSvg from './Components/Svg/DoneIconSvg';
-import CloseIconSvg from './Components/Svg/CloseIconSvg';
+import MenuIconSvg from './components/Svg/MenuIconSvg';
+import SearchIconSvg from './components/Svg/SearchIconSvg';
+import AddIconSvg from './components/Svg/AddIconSvg';
+import BackIconSvg from './components/Svg/BackIconSvg';
+import UndoIconSvg from './components/Svg/UndoIconSvg';
+import RedoIconSvg from './components/Svg/RedoIconSvg';
+import DoneIconSvg from './components/Svg/DoneIconSvg';
+import CloseIconSvg from './components/Svg/CloseIconSvg';
 import { NavigationContainer } from '@react-navigation/native';
 // import { createStackNavigator } from '@react-navigation/stack';
 import { enableScreens } from 'react-native-screens';

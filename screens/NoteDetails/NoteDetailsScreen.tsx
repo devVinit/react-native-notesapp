@@ -2,11 +2,11 @@ import * as React from 'react';
 import { Text, View, StyleSheet, TouchableNativeFeedback, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import UndoIconSvg from '../../Components/Svg/UndoIconSvg';
-import RedoIconSvg from '../../Components/Svg/RedoIconSvg';
+import UndoIconSvg from '../../components/Svg/UndoIconSvg';
+import RedoIconSvg from '../../components/Svg/RedoIconSvg';
 import { useState } from 'react';
-import BackIconSvg from '../../Components/Svg/BackIconSvg';
-import DoneIconSvg from '../../Components/Svg/DoneIconSvg';
+import BackIconSvg from '../../components/Svg/BackIconSvg';
+import DoneIconSvg from '../../components/Svg/DoneIconSvg';
 
 interface NoteDetailsScreenProps {
     navigation: any;

@@ -1,4 +1,4 @@
-import { ADD_NOTE, UPDATE_NOTE, DELETE_NOTE, PIN_NOTE } from '../actions/ActionTypes';
+import { ADD_NOTE, DELETE_NOTE, PIN_NOTE } from '../actions/ActionTypes';
 import { Note } from '../../models/Note';
 
 const initialState: Note[] = [
@@ -25,13 +25,13 @@ const initialState: Note[] = [
 const notes = (state = initialState, action: any) => {
     switch (action.type) {
         case ADD_NOTE:
-            return state;
-        case UPDATE_NOTE:
-            return state;
+            return [...state, action.payload];
         case DELETE_NOTE:
-            return state;
+            state.splice(action.index);
+            return [...state];
         case PIN_NOTE:
-            return state;
+            state[action.index].pinned = true;
+            return [...state];
         default:
             return state;
     }

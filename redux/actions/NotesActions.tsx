@@ -1,29 +1,23 @@
-import { ADD_NOTE, UPDATE_NOTE, DELETE_NOTE, PIN_NOTE } from './ActionTypes';
+import { ADD_NOTE, DELETE_NOTE, PIN_NOTE } from './ActionTypes';
+import { Note } from '../../models/Note';
 
-export function addNote(payload: any) {
+export function addNote(payload: Note) {
     return {
         type: ADD_NOTE,
         payload
     }
 }
 
-export function updateNote(index: number, payload: any) {
-    return {
-        type: UPDATE_NOTE,
-        payload
-    }
-}
-
-export function deleteNote(payload: any, index: number) {
+export function deleteNote(index: number) {
     return {
         type: DELETE_NOTE,
-        payload
+        index
     }
 }
 
-export function pinNote(payload: any, index: number) {
+export function pinNote(index: number) {
     return {
         type: PIN_NOTE,
-        payload
+        index
     }
 }

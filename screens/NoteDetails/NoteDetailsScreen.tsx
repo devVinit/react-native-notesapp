@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import BackIconSvg from '../../components/Svg/BackIconSvg';
 import DoneIconSvg from '../../components/Svg/DoneIconSvg';
 import { useDispatch } from 'react-redux';
-import { addNote, deleteNote } from '../../redux/actions/NotesActions';
+import { addNote, deleteNote, pinNote } from '../../redux/actions/NotesActions';
 import PinIconSvg from '../../components/Svg/PinIconSvg';
 import DeleteIconSvg from '../../components/Svg/DeleteIconSvg';
 
@@ -31,8 +31,9 @@ export enum NoteDetailsScreenMode {
 
 const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
 
-    const [title, setTitle] = useState<string>(route.params.note.title || '');
-    const [content, setContent] = useState<string>(route.params.note.content || '');
+    const [title, setTitle] = useState<string>(route.params.note && route.params.note.title || '');
+    const [content, setContent] = useState<string>(route.params.note && route.params.note.content || '');
+    const [pinned, setPinned] = useState<boolean>(route.params.note && route.params.note.pinned || false);
 
     const dispatch = useDispatch();
 
@@ -44,7 +45,7 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
         const payload = {
             title,
             content,
-            pinned: false,
+            pinned,
             bgColor: randomColor()
         };
 
@@ -56,6 +57,12 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
         const index = route.params.noteIndex;
         dispatch(deleteNote(index));
         navigation.pop();
+    }
+
+    const handlePinNoteAction = () => {
+        setPinned(!pinned);
+        const index = route.params.noteIndex;
+        dispatch(pinNote(index));
     }
 
     return (
@@ -101,8 +108,9 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
                             route.params && route.params.mode === NoteDetailsScreenMode.VIEW &&
                             <>
                                 <TouchableNativeFeedback
+                                    onPress={() => handlePinNoteAction()}
                                     background={TouchableNativeFeedback.Ripple('black', true)}>
-                                    <View style={{ alignItems: 'center', justifyContent: 'center', padding: 10 }}>
+                                    <View style={{ alignItems: 'center', justifyContent: 'center', padding: 10, opacity: pinned ? 1 : 0.3 }}>
                                         <PinIconSvg />
                                     </View>
                                 </TouchableNativeFeedback>
@@ -131,7 +139,7 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
                     <TextInput
                         multiline
                         placeholder="Content"
-                        style={{ height: 'auto', fontSize: 13, }}
+                        style={{ height: 'auto', fontSize: 13, color: route.params && route.params.mode === NoteDetailsScreenMode.VIEW ? '#1D1D1D' : 'black' }}
                         onChangeText={content => setContent(content)}
                         value={content}
                         editable={route.params && route.params.mode === NoteDetailsScreenMode.ADD}

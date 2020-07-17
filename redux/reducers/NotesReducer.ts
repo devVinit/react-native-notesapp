@@ -30,7 +30,7 @@ const notes = (state = initialState, action: any) => {
             state.splice(action.index);
             return [...state];
         case PIN_NOTE:
-            state[action.index].pinned = true;
+            state[action.index].pinned = !state[action.index].pinned;
             return [...state];
         default:
             return state;

@@ -6,16 +6,6 @@ import {
   useFonts,
   Poppins_500Medium,
 } from '@expo-google-fonts/poppins';
-
-import { SafeAreaView } from 'react-native-safe-area-context';
-import MenuIconSvg from './components/Svg/MenuIconSvg';
-import SearchIconSvg from './components/Svg/SearchIconSvg';
-import AddIconSvg from './components/Svg/AddIconSvg';
-import BackIconSvg from './components/Svg/BackIconSvg';
-import UndoIconSvg from './components/Svg/UndoIconSvg';
-import RedoIconSvg from './components/Svg/RedoIconSvg';
-import DoneIconSvg from './components/Svg/DoneIconSvg';
-import CloseIconSvg from './components/Svg/CloseIconSvg';
 import { NavigationContainer } from '@react-navigation/native';
 // import { createStackNavigator } from '@react-navigation/stack';
 import { enableScreens } from 'react-native-screens';
@@ -23,11 +13,64 @@ import { createNativeStackNavigator } from 'react-native-screens/native-stack';
 import HomeScreen from './screens/Home/HomeScreen';
 import SearchScreen from './screens/Search/SearchScreen';
 import NoteDetailsScreen from './screens/NoteDetails/NoteDetailsScreen';
+import SecurityPinScreen from './screens/SecurityPin/SecurityPinScreen';
+import { useSelector } from 'react-redux';
 
 enableScreens();
-const Stack = createNativeStackNavigator();
+
+function LoginStack() {
+  const Login = createNativeStackNavigator();
+  return (
+    <Login.Navigator
+      screenOptions={{
+        gestureEnabled: true,
+        headerShown: false
+      }}
+    >
+      <Login.Screen
+        name="SecurtyPinScreen"
+        component={SecurityPinScreen}
+      />
+    </Login.Navigator>
+  )
+}
+
+function AppStack() {
+  const App = createNativeStackNavigator();
+  return (
+    <App.Navigator
+      screenOptions={{
+        gestureEnabled: true,
+        headerShown: false
+      }}
+    >
+      <App.Screen
+        name="HomeScreen"
+        component={HomeScreen}
+      />
+
+      <App.Screen
+        name="SecurtyPinScreen"
+        component={SecurityPinScreen}
+      />
+
+      <App.Screen
+        name="SearchScreen"
+        component={SearchScreen}
+      />
+
+      <App.Screen
+        name="NoteDetailsScreen"
+        component={NoteDetailsScreen}
+      />
+    </App.Navigator>
+  )
+}
 
 export default function App() {
+
+  const loginStatus = useSelector((state: any) => state.loginStatus);
+
   let fontLoaded = useFonts({
     Poppins_500Medium
   })
@@ -37,29 +80,14 @@ export default function App() {
   } else {
     return (
       <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            gestureEnabled: true
-          }}
-        >
-          <Stack.Screen
-            name="HomeScreen"
-            component={HomeScreen}
-            options={{ headerShown: false }}
-          />
-
-          <Stack.Screen
-            name="SearchScreen"
-            component={SearchScreen}
-            options={{ headerShown: false }}
-          />
-
-          <Stack.Screen
-            name="NoteDetailsScreen"
-            component={NoteDetailsScreen}
-            options={{ headerShown: false }}
-          />
-        </Stack.Navigator>
+        {
+          loginStatus &&
+          <AppStack />
+        }
+        {
+          loginStatus === false &&
+          <LoginStack />
+        }
       </NavigationContainer>
     );
   }

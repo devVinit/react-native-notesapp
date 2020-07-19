@@ -55,7 +55,7 @@ const SecurityPinScreen = ({ route, navigation }: SecurityPinScreenProps) => {
 
     useEffect(() => {
         if (pin.length === 4) {
-            if (mode === SecurityPinScreenMode.NEW || mode === SecurityPinScreenMode.EDIT) {
+            if (mode === SecurityPinScreenMode.NEW) {
                 AsyncStorage.setItem('SECURITY_CODE', pin.join(''));
                 setTimeout(() => {
                     dispatch(appLogin(true));
@@ -70,6 +70,8 @@ const SecurityPinScreen = ({ route, navigation }: SecurityPinScreenProps) => {
                     setPin([]);
                     setPinStatus('INCORRECT');
                 }
+            } else if (mode === SecurityPinScreenMode.EDIT) {
+                navigation.navigate('HomeScreen');
             }
         }
     }, [pin]);

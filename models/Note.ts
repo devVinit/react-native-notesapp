@@ -1,7 +1,8 @@
 export interface Note {
-    title: string,
-    content: string,
-    bgColor: string,
-    pinned: boolean,
-    date: Date
+    id: number;
+    title: string;
+    content: string;
+    bgColor: string;
+    pinned: boolean;
+    date: string;
 }

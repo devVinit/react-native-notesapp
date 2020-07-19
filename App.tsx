@@ -1,20 +1,23 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableNativeFeedback, Platform, TextInput } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, AsyncStorage } from 'react-native';
 import { AppLoading } from 'expo';
-import { StatusBar } from 'expo-status-bar';
 import {
   useFonts,
   Poppins_500Medium,
 } from '@expo-google-fonts/poppins';
 import { NavigationContainer } from '@react-navigation/native';
-// import { createStackNavigator } from '@react-navigation/stack';
 import { enableScreens } from 'react-native-screens';
 import { createNativeStackNavigator } from 'react-native-screens/native-stack';
 import HomeScreen from './screens/Home/HomeScreen';
 import SearchScreen from './screens/Search/SearchScreen';
 import NoteDetailsScreen from './screens/NoteDetails/NoteDetailsScreen';
 import SecurityPinScreen from './screens/SecurityPin/SecurityPinScreen';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux'
+import toaster from './redux/reducers/ToasterReducer';
+import ToasterComponent from './components/Common/ToasterComponent';
+import store from './redux/store';
+import { addBulkNotes } from './redux/actions/NotesActions';
+
 
 enableScreens();
 
@@ -70,25 +73,45 @@ function AppStack() {
 export default function App() {
 
   const loginStatus = useSelector((state: any) => state.loginStatus);
+  const toaster = useSelector((state: any) => state.toaster);
+
+  const dispatch = useDispatch();
 
   let fontLoaded = useFonts({
     Poppins_500Medium
   })
 
+  useEffect(() => {
+    AsyncStorage
+      .getItem('state')
+      .then((state: any) => {
+        if (state !== null) {
+          const notes = JSON.parse(state).notes;
+          dispatch(addBulkNotes(notes));
+        }
+      });
+  }, []);
+
   if (!fontLoaded) {
     return <AppLoading />
   } else {
     return (
-      <NavigationContainer>
+      <View style={{ flex: 1 }}>
+        <NavigationContainer>
+          {
+            loginStatus &&
+            <AppStack />
+          }
+          {
+            loginStatus === false &&
+            <LoginStack />
+          }
+        </NavigationContainer>
         {
-          loginStatus &&
-          <AppStack />
+          toaster && toaster.show &&
+          <ToasterComponent message={toaster.message} />
         }
-        {
-          loginStatus === false &&
-          <LoginStack />
-        }
-      </NavigationContainer>
+      </View>
     );
   }
 

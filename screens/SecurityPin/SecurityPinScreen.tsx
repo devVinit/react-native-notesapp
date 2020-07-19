@@ -21,14 +21,16 @@ export enum SecurityPinScreenMode {
 }
 
 enum PinStatus {
-
+    CORRECT = 'CORRECT',
+    INPROGRESS = 'INPROGRESS',
+    INCORRECT = 'INCORRECT'
 }
 
 const SecurityPinScreen = ({ route, navigation }: SecurityPinScreenProps) => {
 
     const [pin, setPin] = useState<number[]>([]);
     const [expectedPin, setExpectedPin] = useState<string>();
-    const [pinStatus, setPinStatus] = useState<'CORRECT' | 'INPROGRESS' | 'INCORRECT'>();
+    const [pinStatus, setPinStatus] = useState<string>();
     const [mode, setMode] = useState<any>(route.params && route.params.mode);
 
     const dispatch = useDispatch();
@@ -55,7 +57,9 @@ const SecurityPinScreen = ({ route, navigation }: SecurityPinScreenProps) => {
         if (pin.length === 4) {
             if (mode === SecurityPinScreenMode.NEW || mode === SecurityPinScreenMode.EDIT) {
                 AsyncStorage.setItem('SECURITY_CODE', pin.join(''));
-                navigation.navigate('HomeScreen');
+                setTimeout(() => {
+                    dispatch(appLogin(true));
+                }, 500);
             } else if (mode === SecurityPinScreenMode.LOGIN) {
                 if (pin.join('') === expectedPin) {
                     setPinStatus('CORRECT');
@@ -87,14 +91,14 @@ const SecurityPinScreen = ({ route, navigation }: SecurityPinScreenProps) => {
         <View style={styles.container}>
             <StatusBar style="auto" />
             <SafeAreaView style={{ flex: 1, justifyContent: 'space-between' }}>
-                <View style={{ height: 68, paddingVertical: 10, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View style={commonStyle.headerContainer}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         {
                             mode === 'EDIT' &&
                             <TouchableNativeFeedback
                                 onPress={() => navigation.goBack()}
                                 background={TouchableNativeFeedback.Ripple('black', true)}>
-                                <View style={{ alignItems: 'center', justifyContent: 'center', padding: 10 }}>
+                                <View style={commonStyle.headerIcon}>
                                     <BackIconSvg />
                                 </View>
                             </TouchableNativeFeedback>
@@ -103,16 +107,16 @@ const SecurityPinScreen = ({ route, navigation }: SecurityPinScreenProps) => {
                 </View>
 
                 <View style={{ alignItems: 'center', }}>
-                    <View style={[styles.imgHolder, { backgroundColor: pinStatus === 'CORRECT' ? '#80E374' : '#3A3A3A', }]}>
+                    <View style={[styles.imgHolder, { backgroundColor: pinStatus === PinStatus.CORRECT ? '#80E374' : '#3A3A3A', }]}>
                         <NoteIconSvg />
                     </View>
                     <View style={{ height: 40 }} />
                     {
-                        pinStatus === 'CORRECT' &&
+                        pinStatus === PinStatus.CORRECT &&
                         <Text style={commonStyle.header2}>PIN is correct</Text>
                     }
                     {
-                        (!pinStatus || pinStatus !== 'CORRECT') &&
+                        (!pinStatus || pinStatus !== PinStatus.CORRECT) &&
                         <View>
                             {
                                 mode === SecurityPinScreenMode.NEW &&
@@ -130,20 +134,26 @@ const SecurityPinScreen = ({ route, navigation }: SecurityPinScreenProps) => {
                     }
                     <View style={{ height: 20 }} />
                     <View style={{ flexDirection: 'row' }}>
-                        <View style={[styles.pinCircle, (pin[0] && styles.pinCircleFilled) || null, (pinStatus === 'CORRECT' && styles.pinCircleCorrect) || null, (pinStatus === 'INCORRECT' && styles.pinCodeInCorrect) || null,]} />
-                        <View style={[styles.pinCircle, (pin[1] && styles.pinCircleFilled) || null, (pinStatus === 'CORRECT' && styles.pinCircleCorrect) || null, (pinStatus === 'INCORRECT' && styles.pinCodeInCorrect) || null,]} />
-                        <View style={[styles.pinCircle, (pin[2] && styles.pinCircleFilled) || null, (pinStatus === 'CORRECT' && styles.pinCircleCorrect) || null, (pinStatus === 'INCORRECT' && styles.pinCodeInCorrect) || null,]} />
-                        <View style={[styles.pinCircle, (pin[3] && styles.pinCircleFilled) || null, (pinStatus === 'CORRECT' && styles.pinCircleCorrect) || null, (pinStatus === 'INCORRECT' && styles.pinCodeInCorrect) || null,]} />
+                        {
+                            [1, 2, 3, 4].map((item, index) => (
+                                <View
+                                    key={index}
+                                    style={[styles.pinCircle, (pin[index]
+                                        && styles.pinCircleFilled) || null, (pinStatus === PinStatus.CORRECT
+                                            && styles.pinCircleCorrect) || null, (pinStatus === PinStatus.INCORRECT
+                                                && styles.pinCodeInCorrect) || null,]} />
+                            ))
+                        }
                     </View>
 
                     {
-                        pinStatus === 'INCORRECT' &&
+                        pinStatus === PinStatus.INCORRECT &&
                         <Text style={{ color: '#E41515' }}>Existing pin does not match</Text>
                     }
                 </View>
 
-                <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', paddingVertical: 20 }}>
-                    <View style={{}}>
+                <View style={styles.keyPadContainer}>
+                    <View>
                         <TouchableNativeFeedback
                             onPress={() => handleAddPinNumberAction(1)}
                             background={TouchableNativeFeedback.Ripple('black', true)}>
@@ -167,7 +177,7 @@ const SecurityPinScreen = ({ route, navigation }: SecurityPinScreenProps) => {
                         </TouchableNativeFeedback>
                     </View>
 
-                    <View style={{}}>
+                    <View>
                         <TouchableNativeFeedback
                             onPress={() => handleAddPinNumberAction(2)}
                             background={TouchableNativeFeedback.Ripple('black', true)}>
@@ -241,7 +251,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff'
     },
-
     imgHolder: {
         borderRadius: 50,
         height: 100,
@@ -249,13 +258,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-
     numText: {
         fontSize: 25,
         paddingHorizontal: 30,
         paddingVertical: 10
     },
-
     pinCircle: {
         height: 10,
         width: 10,
@@ -264,16 +271,18 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#404040'
     },
-
+    keyPadContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        paddingVertical: 20
+    },
     pinCircleFilled: {
         backgroundColor: '#404040'
     },
-
     pinCircleCorrect: {
         backgroundColor: '#80E374',
         borderColor: '#80E374'
     },
-
     pinCodeInCorrect: {
         backgroundColor: '#E41515',
         borderColor: '#E41515'

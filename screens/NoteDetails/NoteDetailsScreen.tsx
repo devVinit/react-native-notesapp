@@ -1,5 +1,12 @@
-import * as React from 'react';
-import { Text, View, StyleSheet, TouchableNativeFeedback, TextInput, Modal, Alert, TouchableWithoutFeedback } from 'react-native';
+import React, { useRef } from 'react';
+import {
+    Text,
+    View,
+    StyleSheet,
+    TouchableNativeFeedback,
+    TextInput,
+    Modal,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import UndoIconSvg from '../../components/Svg/UndoIconSvg';
@@ -9,11 +16,12 @@ import BackIconSvg from '../../components/Svg/BackIconSvg';
 import DoneIconSvg from '../../components/Svg/DoneIconSvg';
 import { useDispatch } from 'react-redux';
 import { addNote, deleteNote, pinNote } from '../../redux/actions/NotesActions';
+import { toggleToaster } from '../../redux/actions/ToasterActions';
 import PinIconSvg from '../../components/Svg/PinIconSvg';
 import DeleteIconSvg from '../../components/Svg/DeleteIconSvg';
 import { Note } from '../../models/Note';
 import { commonStyle } from '../../CompponStyles';
-
+import moment from 'moment';
 
 function randomColor() {
     const bgColors = ['#F3FFE2', '#FFF6F6', '#FFFBE0', '#F9F9F9'];
@@ -36,6 +44,7 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
     const [title, setTitle] = useState<string>(route.params.note && route.params.note.title || '');
     const [content, setContent] = useState<string>(route.params.note && route.params.note.content || '');
     const [pinned, setPinned] = useState<boolean>(route.params.note && route.params.note.pinned || false);
+    const [selectedNoteForDelete, setSelectedNoteForDelete] = useState<boolean>(false);
 
     const [contentHistory, setContentHistory] = useState<any>({
         past: [],
@@ -43,22 +52,19 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
         future: []
     });
 
-    const [selectedNoteForDelete, setSelectedNoteForDelete] = useState<boolean>(false);
-
     const dispatch = useDispatch();
-
-    useEffect(() => {
-        console.log(contentHistory);
-    }, [contentHistory]);
 
     const handleAddNoteActon = () => {
         const payload: Note = {
+            id: route.params.newId,
             title,
             content,
             pinned,
             bgColor: randomColor(),
-            date: new Date()
+            date: moment(new Date()).format('DD MMM')
         };
+
+        console.log(payload);
 
         dispatch(addNote(payload));
         navigation.pop();
@@ -69,39 +75,74 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
     }
 
     const handleDeleteNoteAction = () => {
-        const index = route.params.noteIndex;
-        dispatch(deleteNote(index));
+        const noteId = route.params.noteId;
+        dispatch(toggleToaster('Deleted Successfully'));
+        dispatch(deleteNote(noteId));
         navigation.pop();
     }
 
     const handlePinNoteAction = () => {
         setPinned(!pinned);
-        const index = route.params.noteIndex;
-        dispatch(pinNote(index));
+        const noteId = route.params.noteId;
+        dispatch(pinNote(noteId));
     }
 
     const handleContentTextChange = (event: any) => {
         console.log(content);
         if (event.nativeEvent.key === 'Backspace' || event.nativeEvent.key === 'Enter') {
-            setContentHistory({ ...contentHistory, past: [...contentHistory.past, { type: 'removed' }] });
-        }
+            let replaceIndex = null;
+            for (let i = contentHistory.past.length - 1; i >= 0; i--) {
+                if (contentHistory.past[i].type === 'added') {
+                    if (contentHistory.past.filter((element: any) => element.type === 'removed').length === 0) {
+                        replaceIndex = i;
+                        break;
+                    }
 
-        // else {
-        //     setContentHistory({ ...contentHistory, past: [...contentHistory.past, { type: 'added', value: event.nativeEvent.key }] });
-        // }
+                    if (contentHistory.past.filter((element: any) => element.type === 'removed' && element.replaceIndex === i).length === 0) {
+                        replaceIndex = i;
+                        break;
+                    }
+                }
+            }
+            setContentHistory({ ...contentHistory, past: [...contentHistory.past, { type: 'removed', replaceIndex }] });
+        } else {
+            setContentHistory({ ...contentHistory, past: [...contentHistory.past, { type: 'added', value: event.nativeEvent.key }] });
+        }
     }
 
     const handleUndoContent = () => {
         const lastOperation = contentHistory.past[contentHistory.past.length - 1];
+        let undoContent;
+
         if (lastOperation.type === 'added') {
-            const undoContent = content.substring(0, content.length - 1);
-            setContent(undoContent);
+            undoContent = content.substring(0, content.length - 1);
+        } else {
+            undoContent = content + contentHistory.past[lastOperation.replaceIndex].value;
         }
-        // else {
-        //     const undoContent = content + lastOperation.value;
-        //     setContent(undoContent);
-        // }
-        contentHistory.past.splice(contentHistory.past.length - 1, 1);
+
+        setContent(undoContent);
+
+        const removedHistory = contentHistory.past.splice(contentHistory.past.length - 1, 1)[0];
+        contentHistory.future.push(removedHistory);
+        setContentHistory({ ...contentHistory });
+    }
+
+    const handleRedoContent = () => {
+        const lastOperation = contentHistory.future[contentHistory.future.length - 1];
+        console.log(lastOperation);
+
+        let redoContent;
+
+        if (lastOperation.type === 'added') {
+            redoContent = content + lastOperation.value;
+        } else {
+            redoContent = content.substring(lastOperation.replaceIndex, content.length - 1);
+        }
+
+        setContent(redoContent);
+
+        const removedFuture = contentHistory.future.splice(contentHistory.future.length - 1, 1)[0];
+        contentHistory.past.push(removedFuture);
         setContentHistory({ ...contentHistory });
     }
 
@@ -109,11 +150,11 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
         <View style={styles.container}>
             <StatusBar style="auto" />
             <SafeAreaView style={{ flex: 1 }}>
-                <View style={styles.headerContainer}>
+                <View style={commonStyle.headerContainer}>
                     <TouchableNativeFeedback
                         onPress={() => navigation.pop()}
                         background={TouchableNativeFeedback.Ripple('black', true)}>
-                        <View style={{ alignItems: 'center', justifyContent: 'center', padding: 10 }}>
+                        <View style={commonStyle.headerIcon}>
                             <BackIconSvg />
                         </View>
                     </TouchableNativeFeedback>
@@ -123,23 +164,25 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
                             route.params && route.params.mode === NoteDetailsScreenMode.ADD &&
                             <>
                                 <TouchableNativeFeedback
+                                    disabled={contentHistory.past.length === 0}
                                     onPress={() => handleUndoContent()}
                                     background={TouchableNativeFeedback.Ripple('black', true)}>
-                                    <View style={{ alignItems: 'center', justifyContent: 'center', padding: 10 }}>
+                                    <View style={[commonStyle.headerIcon, { opacity: contentHistory.past.length > 0 ? 1 : 0.3, }]}>
                                         <UndoIconSvg />
                                     </View>
                                 </TouchableNativeFeedback>
                                 <TouchableNativeFeedback
-
+                                    disabled={contentHistory.future.length === 0}
+                                    onPress={() => handleRedoContent()}
                                     background={TouchableNativeFeedback.Ripple('black', true)}>
-                                    <View style={{ alignItems: 'center', justifyContent: 'center', padding: 10 }}>
+                                    <View style={[commonStyle.headerIcon, { opacity: contentHistory.future.length > 0 ? 1 : 0.3, }]}>
                                         <RedoIconSvg />
                                     </View>
                                 </TouchableNativeFeedback>
                                 <TouchableNativeFeedback
                                     onPress={() => handleAddNoteActon()}
                                     background={TouchableNativeFeedback.Ripple('black', true)}>
-                                    <View style={{ alignItems: 'center', justifyContent: 'center', padding: 10 }}>
+                                    <View style={commonStyle.headerIcon}>
                                         <DoneIconSvg />
                                     </View>
                                 </TouchableNativeFeedback>
@@ -152,14 +195,14 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
                                 <TouchableNativeFeedback
                                     onPress={() => handlePinNoteAction()}
                                     background={TouchableNativeFeedback.Ripple('black', true)}>
-                                    <View style={{ alignItems: 'center', justifyContent: 'center', padding: 10, opacity: pinned ? 1 : 0.3 }}>
+                                    <View style={[commonStyle.headerIcon, { opacity: pinned ? 1 : 0.3 }]}>
                                         <PinIconSvg />
                                     </View>
                                 </TouchableNativeFeedback>
                                 <TouchableNativeFeedback
                                     onPress={() => showConfirmationBeforeDelete()}
                                     background={TouchableNativeFeedback.Ripple('black', true)}>
-                                    <View style={{ alignItems: 'center', justifyContent: 'center', padding: 10 }}>
+                                    <View style={commonStyle.headerIcon}>
                                         <DeleteIconSvg />
                                     </View>
                                 </TouchableNativeFeedback>
@@ -168,12 +211,12 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
                     </View>
                 </View>
 
-                <View style={{ marginVertical: 20, marginHorizontal: 40, flex: 1 }}>
-                    <Text style={{ fontSize: 12, color: '#1D1D1D', opacity: 0.2 }}>5 June</Text>
+                <View style={styles.content}>
+                    <Text style={[commonStyle.headerIcon, { opacity: 0.2 }]}>5 June</Text>
                     <TextInput
                         placeholder="Title here..."
-                        style={{ height: 60, fontSize: 25, fontFamily: 'Poppins_500Medium', marginVertical: 10, color: '#1D1D1D', opacity: title ? 1.0 : 0.5, borderBottomWidth: 0.2 }}
-                        onChangeText={title => setTitle(title)}
+                        style={[styles.titleTextInput, { opacity: title ? 1.0 : 0.5 }]}
+                        onChangeText={(title: string) => setTitle(title)}
                         value={title}
                         editable={route.params && route.params.mode === NoteDetailsScreenMode.ADD}
                     />
@@ -182,8 +225,8 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
                         multiline
                         placeholder="Content"
                         style={{ height: 'auto', fontSize: 13, color: route.params && route.params.mode === NoteDetailsScreenMode.VIEW ? '#1D1D1D' : 'black' }}
-                        onKeyPress={key => handleContentTextChange(key)}
-                        onChangeText={content => setContent(content)}
+                        onKeyPress={(key: any) => handleContentTextChange(key)}
+                        onChangeText={(content: string) => setContent(content)}
                         value={content}
                         editable={route.params && route.params.mode === NoteDetailsScreenMode.ADD}
                     />
@@ -193,32 +236,28 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
                     animationType="fade"
                     transparent={true}
                     visible={selectedNoteForDelete}
-                    onRequestClose={() => setSelectedNoteForDelete(false)}
-                >
+                    onRequestClose={() => setSelectedNoteForDelete(false)}>
                     <View style={styles.modalContainer}>
                         <View style={styles.modalBacground} />
                         <View style={styles.modal}>
                             <Text style={[commonStyle.header2, { padding: 30 }]}>Delete This Note ?</Text>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', borderWidth: 0.2 }}>
                                 <TouchableNativeFeedback
-                                    onPress={() => setSelectedNoteForDelete(false)}
-                                >
-                                    <View style={{ paddingVertical: 15, paddingHorizontal: 50 }}>
-                                        <Text style={{ fontSize: 16, color: '#1D1D1D' }}>Cancel </Text>
+                                    onPress={() => setSelectedNoteForDelete(false)}>
+                                    <View style={styles.modalActionContainer}>
+                                        <Text style={styles.modalActionTextStyle}>Cancel</Text>
                                     </View>
                                 </TouchableNativeFeedback>
                                 <TouchableNativeFeedback
-                                    onPress={() => handleDeleteNoteAction()}
-                                >
-                                    <View style={{ paddingVertical: 15, paddingHorizontal: 50 }}>
-                                        <Text style={{ fontSize: 16, color: '#1D1D1D' }}>Delete </Text>
+                                    onPress={() => handleDeleteNoteAction()}>
+                                    <View style={styles.modalActionContainer}>
+                                        <Text style={styles.modalActionTextStyle}>Delete </Text>
                                     </View>
                                 </TouchableNativeFeedback>
                             </View>
                         </View>
                     </View>
                 </Modal>
-
             </SafeAreaView>
         </View>
     );
@@ -238,6 +277,19 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between'
+    },
+    content: {
+        flex: 1,
+        marginVertical: 20,
+        marginHorizontal: 40,
+    },
+    titleTextInput: {
+        height: 60,
+        fontSize: 25,
+        fontFamily: 'Poppins_500Medium',
+        marginVertical: 10,
+        color: '#1D1D1D',
+        borderBottomWidth: 0.2
     },
     modalContainer: {
         flex: 1,
@@ -260,5 +312,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderRadius: 10,
         marginBottom: '30%'
+    },
+    modalActionContainer: {
+        paddingVertical: 15,
+        paddingHorizontal: 50
+    },
+    modalActionTextStyle: {
+        fontSize: 16,
+        color: '#1D1D1D'
     }
 });

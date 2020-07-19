@@ -43,6 +43,7 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
 
     const [title, setTitle] = useState<string>(route.params.note && route.params.note.title || '');
     const [content, setContent] = useState<string>(route.params.note && route.params.note.content || '');
+    const [date, setDate] = useState(moment(new Date()).format('DD MMM').toString());
     const [pinned, setPinned] = useState<boolean>(route.params.note && route.params.note.pinned || false);
     const [selectedNoteForDelete, setSelectedNoteForDelete] = useState<boolean>(false);
 
@@ -60,8 +61,8 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
             title,
             content,
             pinned,
-            bgColor: randomColor(),
-            date: moment(new Date()).format('DD MMM')
+            date,
+            bgColor: randomColor()
         };
 
         console.log(payload);
@@ -212,7 +213,7 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
                 </View>
 
                 <View style={styles.content}>
-                    <Text style={[commonStyle.headerIcon, { opacity: 0.2 }]}>5 June</Text>
+                    <Text style={[commonStyle.headerIcon, { opacity: 0.2 }]}>{date}</Text>
                     <TextInput
                         placeholder="Title here..."
                         style={[styles.titleTextInput, { opacity: title ? 1.0 : 0.5 }]}

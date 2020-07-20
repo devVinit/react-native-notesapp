@@ -65,8 +65,6 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
             bgColor: randomColor()
         };
 
-        console.log(payload);
-
         dispatch(addNote(payload));
         navigation.pop();
     }
@@ -89,7 +87,6 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
     }
 
     const handleContentTextChange = (event: any) => {
-        console.log(content);
         if (event.nativeEvent.key === 'Backspace' || event.nativeEvent.key === 'Enter') {
             let replaceIndex = null;
             for (let i = contentHistory.past.length - 1; i >= 0; i--) {

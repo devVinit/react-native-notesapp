@@ -12,10 +12,8 @@ import HomeScreen from './screens/Home/HomeScreen';
 import SearchScreen from './screens/Search/SearchScreen';
 import NoteDetailsScreen from './screens/NoteDetails/NoteDetailsScreen';
 import SecurityPinScreen from './screens/SecurityPin/SecurityPinScreen';
-import { useSelector, useDispatch } from 'react-redux'
-import toaster from './redux/reducers/ToasterReducer';
+import { useSelector, useDispatch } from 'react-redux';
 import ToasterComponent from './components/Common/ToasterComponent';
-import store from './redux/store';
 import { addBulkNotes } from './redux/actions/NotesActions';
 
 

@@ -1,11 +1,11 @@
 import React from 'react';
-import { Text, View, StyleSheet, TouchableNativeFeedback } from 'react-native';
+import { Text, View, StyleSheet, TouchableNativeFeedback, GestureResponderEvent } from 'react-native';
 import { commonStyle } from '../../CompponStyles';
 import { Note } from '../../models/Note';
 import PinIconSvg from '../Svg/PinIconSvg';
 
 interface NotesCardComponentProps {
-    onPress: any;
+    onPress: (event: GestureResponderEvent) => void;
     note: Note
     pinned?: boolean
 }

@@ -60,9 +60,7 @@ const notes = (state = initialState, action: any) => {
         case ADD_NOTE:
             return [...state, action.payload];
         case DELETE_NOTE:
-            console.log('id', action.id);
             let noteIndex = state.findIndex((note: Note) => note.id === action.id);
-            console.log('noteIndex', noteIndex);
             state.splice(noteIndex, 1);
             return [...state];
         case PIN_NOTE:

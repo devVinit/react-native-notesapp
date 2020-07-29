@@ -236,7 +236,7 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
                     visible={selectedNoteForDelete}
                     onRequestClose={() => setSelectedNoteForDelete(false)}>
                     <View style={styles.modalContainer}>
-                        <View style={styles.modalBacground} />
+                        <View style={styles.modalBackground} />
                         <View style={styles.modal}>
                             <Text style={[commonStyle.header2, { padding: 30 }]}>Delete This Note ?</Text>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', borderWidth: 0.2 }}>
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'flex-end'
     },
-    modalBacground: {
+    modalBackground: {
         position: 'absolute',
         width: '100%',
         height: '100%',

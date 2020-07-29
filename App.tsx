@@ -77,7 +77,7 @@ export default function App() {
 
   let fontLoaded = useFonts({
     Poppins_500Medium
-  })
+  });
 
   useEffect(() => {
     AsyncStorage

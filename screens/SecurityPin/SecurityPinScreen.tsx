@@ -36,7 +36,6 @@ const SecurityPinScreen = ({ route, navigation }: SecurityPinScreenProps) => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        console.log(mode);
         AsyncStorage
             .getItem('SECURITY_CODE')
             .then(pin => {

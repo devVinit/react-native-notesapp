@@ -1,9 +1,9 @@
-import { createStore, combineReducers, applyMiddleware } from 'redux';
-import thunk from 'redux-thunk';
-import notes from './reducers/NotesReducer';
-import loginStatus from './reducers/LoginReducer';
-import toaster from './reducers/ToasterReducer';
-import { saveState } from '../AsyncStorageSync';
+import { createStore, combineReducers, applyMiddleware } from "redux";
+import thunk from "redux-thunk";
+import notes from "./reducers/NotesReducer";
+import loginStatus from "./reducers/LoginReducer";
+import toaster from "./reducers/ToasterReducer";
+import { saveState } from "../AsyncStorageSync";
 
 const store = createStore(
   combineReducers<any>({ notes, loginStatus, toaster }),
@@ -14,4 +14,4 @@ store.subscribe(() => {
   saveState(store.getState());
 });
 
-export default store; 
+export default store;

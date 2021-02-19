@@ -75,7 +75,7 @@ export default function App() {
 
   const dispatch = useDispatch();
 
-  let fontLoaded = useFonts({
+  let [fontLoaded] = useFonts({
     Poppins_500Medium
   });
 

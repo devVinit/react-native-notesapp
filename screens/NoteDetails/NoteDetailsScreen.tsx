@@ -145,122 +145,122 @@ const NoteDetailsScreen = ({ route, navigation }: NoteDetailsScreenProps) => {
   }
 
   return (
-    <View style= { styles.container } >
-    <StatusBar style="auto" />
-      <SafeAreaView style={ { flex: 1 } }>
-        <View style={ commonStyle.headerContainer }>
+    <View style={styles.container} >
+      <StatusBar style="auto" />
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={commonStyle.headerContainer}>
           <TouchableNativeFeedback
-                        onPress={ () => navigation.pop() }
-  background = { TouchableNativeFeedback.Ripple('black', true) } >
-    <View style={ commonStyle.headerIcon }>
-      <BackIconSvg />
-      < /View>
-      < /TouchableNativeFeedback>
+            onPress={() => navigation.pop()}
+            background={TouchableNativeFeedback.Ripple('black', true)} >
+            <View style={commonStyle.headerIcon}>
+              <BackIconSvg />
+            </View>
+          </TouchableNativeFeedback>
 
-      < View style = {{ flexDirection: 'row' }
-}>
-{
-  route.params && route.params.mode === NoteDetailsScreenMode.ADD &&
-    <>
-    <TouchableNativeFeedback
-                                    disabled={ contentHistory.past.length === 0 }
-onPress = {() => handleUndoContent()}
-background = { TouchableNativeFeedback.Ripple('black', true) } >
-  <View style={ [commonStyle.headerIcon, { opacity: contentHistory.past.length > 0 ? 1 : 0.3, }] }>
-    <UndoIconSvg />
-    < /View>
-    < /TouchableNativeFeedback>
-    < TouchableNativeFeedback
-disabled = { contentHistory.future.length === 0 }
-onPress = {() => handleRedoContent()}
-background = { TouchableNativeFeedback.Ripple('black', true) } >
-  <View style={ [commonStyle.headerIcon, { opacity: contentHistory.future.length > 0 ? 1 : 0.3, }] }>
-    <RedoIconSvg />
-    < /View>
-    < /TouchableNativeFeedback>
-    < TouchableNativeFeedback
-onPress = {() => handleAddNoteActon()}
-background = { TouchableNativeFeedback.Ripple('black', true) } >
-  <View style={ commonStyle.headerIcon }>
-    <DoneIconSvg />
-    < /View>
-    < /TouchableNativeFeedback>
-    < />
-                        }
+          <View style={{ flexDirection: 'row' }
+          }>
+            {
+              route.params && route.params.mode === NoteDetailsScreenMode.ADD &&
+              <>
+                <TouchableNativeFeedback
+                  disabled={contentHistory.past.length === 0}
+                  onPress={() => handleUndoContent()}
+                  background={TouchableNativeFeedback.Ripple('black', true)} >
+                  <View style={[commonStyle.headerIcon, { opacity: contentHistory.past.length > 0 ? 1 : 0.3, }]}>
+                    <UndoIconSvg />
+                  </View>
+                </TouchableNativeFeedback>
+                <TouchableNativeFeedback
+                  disabled={contentHistory.future.length === 0}
+                  onPress={() => handleRedoContent()}
+                  background={TouchableNativeFeedback.Ripple('black', true)} >
+                  <View style={[commonStyle.headerIcon, { opacity: contentHistory.future.length > 0 ? 1 : 0.3, }]}>
+                    <RedoIconSvg />
+                  </View>
+                </TouchableNativeFeedback>
+                <TouchableNativeFeedback
+                  onPress={() => handleAddNoteActon()}
+                  background={TouchableNativeFeedback.Ripple('black', true)} >
+                  <View style={commonStyle.headerIcon}>
+                    <DoneIconSvg />
+                  </View>
+                </TouchableNativeFeedback>
+              </>
+            }
 
-{
-  route.params && route.params.mode === NoteDetailsScreenMode.VIEW &&
-    <>
-    <TouchableNativeFeedback
-                                    onPress={ () => handlePinNoteAction() }
-  background = { TouchableNativeFeedback.Ripple('black', true) } >
-    <View style={ [commonStyle.headerIcon, { opacity: pinned ? 1 : 0.3 }] }>
-      <PinIconSvg />
-      < /View>
-      < /TouchableNativeFeedback>
-      < TouchableNativeFeedback
-  onPress = {() => showConfirmationBeforeDelete()
-}
-background = { TouchableNativeFeedback.Ripple('black', true) } >
-  <View style={ commonStyle.headerIcon }>
-    <DeleteIconSvg />
-    < /View>
-    < /TouchableNativeFeedback>
-    < />
-                        }
-</View>
-  < /View>
+            {
+              route.params && route.params.mode === NoteDetailsScreenMode.VIEW &&
+              <>
+                <TouchableNativeFeedback
+                  onPress={() => handlePinNoteAction()}
+                  background={TouchableNativeFeedback.Ripple('black', true)} >
+                  <View style={[commonStyle.headerIcon, { opacity: pinned ? 1 : 0.3 }]}>
+                    <PinIconSvg />
+                  </View>
+                </TouchableNativeFeedback>
+                <TouchableNativeFeedback
+                  onPress={() => showConfirmationBeforeDelete()
+                  }
+                  background={TouchableNativeFeedback.Ripple('black', true)} >
+                  <View style={commonStyle.headerIcon}>
+                    <DeleteIconSvg />
+                  </View>
+                </TouchableNativeFeedback>
+              </>
+            }
+          </View>
+        </View>
 
-  < View style = { styles.content } >
-    <Text style={ [commonStyle.headerIcon, { opacity: 0.2 }] }> { date } < /Text>
-      < TextInput
-placeholder = "Title here..."
-style = { [styles.titleTextInput, { opacity: title ? 1.0 : 0.5 }]}
-onChangeText = {(title: string) => setTitle(title)}
-value = { title }
-editable = { route.params && route.params.mode === NoteDetailsScreenMode.ADD }
-  />
+        <View style={styles.content}>
+          <Text style={[commonStyle.headerIcon, { opacity: 0.2 }]}> {date} </Text>
+          <TextInput
+            placeholder="Title here..."
+            style={[styles.titleTextInput, { opacity: title ? 1.0 : 0.5 }]}
+            onChangeText={(title: string) => setTitle(title)}
+            value={title}
+            editable={route.params && route.params.mode === NoteDetailsScreenMode.ADD}
+          />
 
-  <TextInput
-                        multiline
-placeholder = "Content"
-style = {{ height: 'auto', fontSize: 13, color: route.params && route.params.mode === NoteDetailsScreenMode.VIEW ? '#1D1D1D' : 'black' }}
-onKeyPress = {(key: any) => handleContentTextChange(key)}
-onChangeText = {(content: string) => setContent(content)}
-value = { content }
-editable = { route.params && route.params.mode === NoteDetailsScreenMode.ADD }
-  />
-  </View>
+          <TextInput
+            multiline
+            placeholder="Content"
+            style={{ height: 'auto', fontSize: 13, color: route.params && route.params.mode === NoteDetailsScreenMode.VIEW ? '#1D1D1D' : 'black' }}
+            onKeyPress={(key: any) => handleContentTextChange(key)}
+            onChangeText={(content: string) => setContent(content)}
+            value={content}
+            editable={route.params && route.params.mode === NoteDetailsScreenMode.ADD}
+          />
+        </View>
 
-  < Modal
-animationType = "fade"
-transparent = { true}
-visible = { selectedNoteForDelete }
-onRequestClose = {() => setSelectedNoteForDelete(false)}>
-  <View style={ styles.modalContainer }>
-    <View style={ styles.modalBackground } />
-      < View style = { styles.modal } >
-        <Text style={ [commonStyle.header2, { padding: 30 }] }> Delete This Note ? </Text>
-          < View style = {{ flexDirection: 'row', justifyContent: 'space-evenly', borderWidth: 0.2 }}>
-            <TouchableNativeFeedback
-                                    onPress={ () => setSelectedNoteForDelete(false) }>
-  <View style={ styles.modalActionContainer }>
-    <Text style={ styles.modalActionTextStyle }> Cancel < /Text>
-      < /View>
-      < /TouchableNativeFeedback>
-      < TouchableNativeFeedback
-onPress = {() => handleDeleteNoteAction()}>
-  <View style={ styles.modalActionContainer }>
-    <Text style={ styles.modalActionTextStyle }> Delete < /Text>
-      < /View>
-      < /TouchableNativeFeedback>
-      < /View>
-      < /View>
-      < /View>
-      < /Modal>
-      < /SafeAreaView>
-      < /View>
-    );
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={selectedNoteForDelete}
+          onRequestClose={() => setSelectedNoteForDelete(false)}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalBackground} />
+            <View style={styles.modal} >
+              <Text style={[commonStyle.header2, { padding: 30 }]}> Delete This Note ? </Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', borderWidth: 0.2 }}>
+                <TouchableNativeFeedback
+                  onPress={() => setSelectedNoteForDelete(false)}>
+                  <View style={styles.modalActionContainer}>
+                    <Text style={styles.modalActionTextStyle}> Cancel </Text>
+                  </View>
+                </TouchableNativeFeedback>
+                <TouchableNativeFeedback
+                  onPress={() => handleDeleteNoteAction()}>
+                  <View style={styles.modalActionContainer}>
+                    <Text style={styles.modalActionTextStyle}> Delete </Text>
+                  </View>
+                </TouchableNativeFeedback>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </SafeAreaView>
+    </View>
+  );
 };
 
 export default NoteDetailsScreen;

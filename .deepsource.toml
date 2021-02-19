@@ -1,10 +1,6 @@
 version = 1
 
 [[analyzers]]
-name = "ruby"
-enabled = true
-
-[[analyzers]]
 name = "javascript"
 enabled = true
 
@@ -16,3 +12,7 @@ enabled = true
 [[transformers]]
 name = "prettier"
 enabled = true
+
+dependency_file_paths = [
+  "./package.json"
+]
